@@ -1,0 +1,33 @@
+name: Format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '**.cpp', '**.hpp' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ '**.cpp', '**.hpp' ]
+
+jobs:
+  # TODO(kononovk) clang-format 14, now this extension doesn't work, because clang-14 not really released yet
+  # TODO(kononovk) Use our own script instead of github action, same as in /.githooks
+  # TODO(kononovk) Check cmake format?
+  # TODO(kononovk) Check markdown format?
+  # TODO(kononovk) Add option or workflow for reformat
+
+  main:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - '.'
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run clang-format style check
+        uses: jidicula/clang-format-action@v4.9.0
+        with:
+          clang-format-version: 13
+          check-path: ${{ matrix.path }}
