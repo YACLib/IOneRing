@@ -48,6 +48,7 @@ jobs:
         run: |
           wait_type=""
           compilers=(g++)
+          c_compilers=(gcc)
           for (( i=0; i<${#compilers[*]}; i+=1 )); do
             dir="build_${compilers[$i]}"
             echo $dir
@@ -56,6 +57,7 @@ jobs:
               -G "Ninja"                                                                                             \
               -DCMAKE_BUILD_TYPE=Debug                                                                               \
               -DCMAKE_CXX_COMPILER="${compilers[$i]}"                                                              \
+              -DCMAKE_C_COMPILER="${c_compilers[$i]}"                                                              \
               -DIONE_TEST=SINGLE                                                                                   \
               -DIONE_FLAGS="COVERAGE;$wait_type"                                                              \
               -DIONE_CXX_STANDARD=20                                                                               \
@@ -88,6 +90,7 @@ jobs:
                 exec llvm-cov-14 gcov "$@"' > ./llvm_gcov.sh
           chmod +x ./llvm_gcov.sh
           compilers=(g++)
+          c_compilers=(gcc)
           for (( i=0; i<${#compilers[*]}; i+=1 )); do
             dir="build_${compilers[$i]}"
             echo $dir

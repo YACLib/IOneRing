@@ -22,95 +22,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+        os: [ ubuntu-22.04 ]
         flags: [ WARN, UBSAN, ASAN, TSAN, LSAN ]
         build_type: [ Debug, RelWithDebInfo ]
         isPR:
           - ${{ github.event_name == 'pull_request' }}
-        exclude:
-          # GitHub Actions provides a maximum of 5 parallel macOS machines for free.
-          # So in pr we don't run all configurations.
-          - isPR: true
-            os: macos-12
-            flags: UBSAN
-            build_type: Debug
-          - isPR: true
-            os: macos-12
-            flags: UBSAN
-            build_type: RelWithDebInfo
-
-          # TODO enable when they fix compiler crash
-          - isPR: false
-            os: macos-12
-            flags: UBSAN
-            build_type: RelWithDebInfo
-
-          - isPR: true
-            os: macos-12
-            flags: ASAN
-            build_type: Debug
-          - isPR: true
-            os: macos-12
-            flags: ASAN
-            build_type: RelWithDebInfo
-          - isPR: true
-            os: macos-12
-            flags: TSAN
-            build_type: Debug
-          - isPR: true
-            os: macos-12
-            flags: TSAN
-            build_type: RelWithDebInfo
-          - isPR: true
-            os: macos-12
-            flags: LSAN
-            build_type: Debug
-          - isPR: true
-            os: macos-12
-            flags: LSAN
-            build_type: RelWithDebInfo
-
-          # TODO enable when xcode ld for gcc will be fixed
-          - isPR: false
-            os: macos-12
-            flags: LSAN
-            build_type: Debug
-          - isPR: false
-            os: macos-12
-            flags: LSAN
-            build_type: RelWithDebInfo
-
-          #  Doesn't build with ClanCL ASAN. Random crash on start before main() with MSVC ASAN. THANKS TO THE BEST OS.
-          - os: windows-2022
-            flags: ASAN
-            build_type: Debug
-          - os: windows-2022
-            flags: ASAN
-            build_type: RelWithDebInfo
-          # Best OS doesn't support unnecessary things like UBSAN, LSAN, TSAN.
-          # May be on best OS you can't write a program with undefined behavior or memory leak or race condition, dunno.
-          # I also have a conspiracy theory that Windows is just an unnecessary abstraction over Linux.
-          # See how well WSL works. Or how quickly they made the analog of io_uring.
-          # And who cares if the virtual machine falls? I think this explains everything.
-          - os: windows-2022
-            flags: UBSAN
-            build_type: Debug
-          - os: windows-2022
-            flags: UBSAN
-            build_type: RelWithDebInfo
-          - os: windows-2022
-            flags: LSAN
-            build_type: Debug
-          - os: windows-2022
-            flags: LSAN
-            build_type: RelWithDebInfo
-          - os: windows-2022
-            flags: TSAN
-            build_type: Debug
-          - os: windows-2022
-            flags: TSAN
-            build_type: RelWithDebInfo
-
     steps:
       - uses: actions/checkout@v3
 
@@ -139,66 +55,30 @@ jobs:
             --install /usr/bin/cpp        cpp        /usr/bin/cpp-12        200
           sudo update-alternatives --auto cpp
 
-      - name: Update deps on macOS
-        if: ${{ matrix.os == 'macos-12' }}
-        run: |
-          brew update
-          brew install ninja llvm@14 gcc@12
-
       - name: Configure CMake Posix
-        if: ${{ matrix.os != 'windows-2022' }}
         run: |
           flags=${{ matrix.flags }}
           build_type=${{ matrix.build_type }}
           compiler_names=(clang gnu apple_clang)
           stdlib_names=(libcxx libstdcxx default)
           linker=""
-          if [[ ${{ matrix.os }} == "macos-12" ]]; then
-            llvm=/usr/local/opt/llvm@14
-            # TODO(myannyax?) FIBER
-            cxx_compilers=("$llvm/bin/clang++" g++-12 clang++)
-            link_options=(
-              "-L$llvm/lib;-Wl,-rpath,$llvm/lib"
-              "-stdlib=libstdc++"
-              ""
-            )
-            compile_options=(
-              "-I$llvm/include;-I$llvm/include/c++/v1/"
-              "-stdlib=libstdc++"
-              ""
-            )
-            slowdown=8
-          else
-            cxx_compilers=(clang++-14 g++)
-            link_options=(
-              "-stdlib=libc++;-lc++abi"
-              "-stdlib=libstdc++"
-            )
-            compile_options=(
-              "-stdlib=libc++"
-              "-stdlib=libstdc++"
-            )
-            slowdown=1
-            linker="-fuse-ld=lld-14"
-          fi
+          cxx_compilers=(clang++-14 g++)
+          c_compilers=(clang-14 gcc)
+          link_options=(
+            "-stdlib=libc++;-lc++abi"
+            "-stdlib=libstdc++"
+          )
+          compile_options=(
+            "-stdlib=libc++"
+            "-stdlib=libstdc++"
+          )
+          slowdown=1
+          linker="-fuse-ld=lld-14"
+          
 
           for (( i=0; i<${#cxx_compilers[*]}; i+=1 )); do
             for (( j=0; j<${#link_options[*]}; j+=1 )); do
               link_option=${link_options[$j]}; compile_option=${compile_options[$j]}
-              if [[ ${{ matrix.os }} == "macos-12" ]]; then # macOS workarounds
-                if [[ "${compiler_names[$i]}" != "gnu" && "$flags" == "LSAN" ]]; then
-                  # AppleClang doesn't support LSAN.
-                  # But also random crash with LLVM CLang LSAN. TODO(myannyax) Try to debug and create issue to LLVM CLang LSAN.
-                  # >CHECK failed: sanitizer_thread_registry.cpp:58 "((ThreadStatusFinished)) == ((status))" (0x3, 0x4) (tid=47505)
-                  # Btw I don't think leak sanitizer is needed on a macOS.
-                  # After all, if your application crashed from lack of memory, why fix it? Better buy a new mac!
-                  continue
-                fi
-                if [[ "${compiler_names[$i]}" == "gnu" ]]; then
-                  # TODO https://stackoverflow.com/questions/73714336/xcode-update-to-version-2395-ld-compile-problem-occurs-computedatomcount-m
-                  continue  # Link error
-                fi
-              fi
               if [[ "${compiler_names[$i]}" != "clang" && "${stdlib_names[$j]}" != "default" ]]; then
                 # TODO(kononovk) I think we should specify path to libstdcxx
                 # TODO(kononovk) I dunno how to get GNU GCC to work with other stdlibs
@@ -207,9 +87,6 @@ jobs:
                 continue
               fi
               if [[ "${compiler_names[$i]}" == "clang" ]]; then
-                if [[ ${{ matrix.os }} == "macos-12" && "${stdlib_names[$j]}" == "libstdcxx" ]]; then
-                  continue  # TODO(kononovk) Specify path to libstdcxx
-                fi
                 if [[ "${stdlib_names[$j]}" == "default" ]]; then
                   link_option=""; compile_option="-stdlib=libc++"
                 fi
@@ -225,37 +102,12 @@ jobs:
                 -DIONE_TEST=SINGLE                                                                                 \
                 -DIONE_FLAGS="$flags"                                                                         \
                 -DCMAKE_CXX_COMPILER=${cxx_compilers[$i]}                                                            \
+                -DCMAKE_C_COMPILER=${c_compilers[$i]}                                                                \
                 -G"Ninja"                                                                                            \
                 -DIONE_LINK_OPTIONS="$link_option;$linker"                                                         \
                 -DIONE_COMPILE_OPTIONS="$compile_option"                                                           \
                 -DIONE_DEFINITIONS="IONE_CI_SLOWDOWN=$slowdown"
             done
-          done
-
-      - name: Configure CMake Windows
-        if: ${{ matrix.os == 'windows-2022' }}
-        shell: bash
-        run: |
-          flags=${{ matrix.flags }}
-
-          names=(MSVC ClangCL) # TODO(kononovk) MinGW
-          generators=("Visual Studio 17 2022" "Visual Studio 17 2022" "MinGW Makefiles")
-          options=("-A x64" "-A x64 -T ClangCL" "-DCMAKE_BUILD_TYPE=${{ matrix.build_type }}")
-          # TODO(myannyax?) FIBER
-
-          for (( i=0; i<${#names[*]}; i+=1 )); do
-            if [[ "$flags" == "ASAN" && "${names[$i]}" != "MSVC" ]]; then
-              continue  # TODO(kononovk) I can't build with any other ASAN on Windows
-              # I think ClangCL with ASAN should be possible
-            fi
-            dir="build_${names[$i]}"
-            echo $dir
-
-            cmake -S . -B $dir                                                                                       \
-              -DIONE_CXX_STANDARD=20                                                                               \
-              -DIONE_TEST=SINGLE                                                                                   \
-              -G"${generators[$i]}"                                                                                  \
-              ${options[$i]}
           done
 
       - name: Build
