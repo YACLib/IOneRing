@@ -7,6 +7,13 @@ project(ione
 set(IONE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(IONE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+    add_compile_options(-fcoroutines)
+endif ()
+
+list(APPEND YACLIB_COMPILE_OPTIONS "${YACLIB_CORO_FLAGS}")
+
+
 # Include guards
 if (IONE_SOURCE_DIR STREQUAL IONE_BINARY_DIR)
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
@@ -28,6 +35,9 @@ if (IONE_INSTALL)
     install(DIRECTORY ${IONE_SOURCE_DIR}/include/ione TYPE INCLUDE)
     install(DIRECTORY ${IONE_BINARY_DIR}/include/ione TYPE INCLUDE)
 endif()
+
+add_link_options(${IONE_LINK_OPTIONS})
+add_compile_options(${IONE_COMPILE_OPTIONS})
 
 add_subdirectory(src) # Create static library
 

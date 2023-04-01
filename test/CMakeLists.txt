@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-if (IONE_LINK_OPTIONS OR IONE_COMPILE_OPTIONS)
-    add_link_options(${IONE_LINK_OPTIONS})
-    add_compile_options(${IONE_COMPILE_OPTIONS})
-else ()
+if (NOT IONE_LINK_OPTIONS AND NOT IONE_COMPILE_OPTIONS)
     find_package(GTest QUIET)
 endif ()
 
@@ -74,6 +71,3 @@ else ()
 endif ()
 
 unset(IONE_TEST_SOURCES)
-
-add_executable(cat_example cat_example.cpp)
-target_link_libraries(cat_example PRIVATE ione)
