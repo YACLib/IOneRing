@@ -21,6 +21,15 @@ configure_file(config.hpp.in ${IONE_BINARY_DIR}/include/ione/config.hpp)
 
 add_library(ione STATIC)
 
+include(FetchContent)
+FetchContent_Declare(yaclib
+        GIT_REPOSITORY https://github.com/YACLib/YACLib.git
+        GIT_TAG main
+        )
+set(YACLIB_FLAGS "CORO")
+FetchContent_MakeAvailable(yaclib)
+target_link_libraries(ione PUBLIC yaclib)
+
 target_sources(ione
         PUBLIC ${IONE_INCLUDES}
         PRIVATE ${IONE_HEADERS}

@@ -1,7 +1,6 @@
-#include <ione/sum/sum.hpp>
+#include <yaclib/coro/coro.hpp>
 
-#include <experimental/coroutine>
-#include <iostream>
+#include <ione/sum/sum.hpp>
 
 #include <gtest/gtest.h>
 
@@ -11,7 +10,7 @@ struct suspend_always {                // NOLINT
   bool await_ready() const noexcept {  // NOLINT
     return false;
   }
-  void await_suspend(std::experimental::coroutine_handle<>) const noexcept {  // NOLINT
+  void await_suspend(yaclib_std::coroutine_handle<>) const noexcept {  // NOLINT
   }
   void await_resume() const noexcept {  // NOLINT
   }
@@ -21,7 +20,7 @@ template <typename T>
 struct Generator {
   struct promise_type {
     T current_value;
-    using coro_handle = std::experimental::coroutine_handle<promise_type>;
+    using coro_handle = yaclib_std::coroutine_handle<promise_type>;
     auto get_return_object() {
       return coro_handle::from_promise(*this);
     }
@@ -41,7 +40,7 @@ struct Generator {
       return suspend_always();
     }
   };
-  using coro_handle = std::experimental::coroutine_handle<promise_type>;  // NOLINT
+  using coro_handle = yaclib_std::coroutine_handle<promise_type>;  // NOLINT
 
   bool move_next() {  // NOLINT
     return _handle && (_handle.resume(), !_handle.done());
