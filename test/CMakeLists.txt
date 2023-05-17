@@ -74,3 +74,6 @@ else ()
 endif ()
 
 unset(IONE_TEST_SOURCES)
+
+add_executable(cat_example cat_example.cpp)
+target_link_libraries(cat_example PRIVATE ione)
