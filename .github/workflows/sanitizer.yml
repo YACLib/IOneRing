@@ -1,0 +1,138 @@
+name: Sanitizer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '**.cpp', '**.hpp*', '**.cmake',  '**/CMakeLists.txt' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ '**.cpp', '**.hpp*', '**.cmake', '**/CMakeLists.txt' ]
+    types: [ assigned ]
+  schedule:
+    - cron: '0 12 * * 1-5'
+
+jobs:
+  # TODO(kononovk) Add MEMSAN?
+  # TODO(kononovk) Maybe better merge undefined, address, leak?
+  # TODO(kononovk) Other not google sanitizers?
+
+  main:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-22.04 ]
+        flags: [ WARN, UBSAN, ASAN, TSAN, LSAN ]
+        build_type: [ Debug, RelWithDebInfo ]
+        isPR:
+          - ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update deps on Linux
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build googletest                                                                  \
+                               gcc-12 g++-12 libstdc++-12-dev                                                          \
+                               clang-14 lld-14 libc++-14-dev libc++abi-14-dev libclang-common-14-dev
+          # We use lld because it faster than ld and gold and don't have strange issues like mold
+          sudo ln -sf /usr/bin/lld-14 /usr/local/bin/ld
+
+          sudo update-alternatives                                                                                     \
+            --install /usr/bin/gcc        gcc        /usr/bin/gcc-12        200                                        \
+            --slave   /usr/bin/g++        g++        /usr/bin/g++-12                                                   \
+            --slave   /usr/bin/gcc-ar     gcc-ar     /usr/bin/gcc-ar-12                                                \
+            --slave   /usr/bin/gcc-nm     gcc-nm     /usr/bin/gcc-nm-12                                                \
+            --slave   /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12                                            \
+            --slave   /usr/bin/gcov       gcov       /usr/bin/gcov-12                                                  \
+            --slave   /usr/bin/gcov-tool  gcov-tool  /usr/bin/gcov-tool-12                                             \
+            --slave   /usr/bin/gcov-dump  gcov-dump  /usr/bin/gcov-dump-12
+          sudo update-alternatives --auto gcc
+
+          sudo update-alternatives                                                                                     \
+            --install /usr/bin/cpp        cpp        /usr/bin/cpp-12        200
+          sudo update-alternatives --auto cpp
+
+      - name: Configure CMake Posix
+        run: |
+          flags=${{ matrix.flags }}
+          build_type=${{ matrix.build_type }}
+          compiler_names=(clang gnu apple_clang)
+          stdlib_names=(libcxx libstdcxx default)
+          linker=""
+          cxx_compilers=(clang++-14 g++)
+          c_compilers=(clang-14 gcc)
+          link_options=(
+            "-stdlib=libc++;-lc++abi"
+            "-stdlib=libstdc++"
+          )
+          compile_options=(
+            "-stdlib=libc++"
+            "-stdlib=libstdc++"
+          )
+          slowdown=1
+          linker="-fuse-ld=lld-14"
+          
+
+          for (( i=0; i<${#cxx_compilers[*]}; i+=1 )); do
+            for (( j=0; j<${#link_options[*]}; j+=1 )); do
+              link_option=${link_options[$j]}; compile_option=${compile_options[$j]}
+              if [[ "${compiler_names[$i]}" != "clang" && "${stdlib_names[$j]}" != "default" ]]; then
+                # TODO(kononovk) I think we should specify path to libstdcxx
+                # TODO(kononovk) I dunno how to get GNU GCC to work with other stdlibs
+                # TODO(kononovk) I dunno how to get AppleClang to work with other stdlibs
+                # Btw I dunno what stdlib would be using libstdcxx or apple_libcxx, just some default
+                continue
+              fi
+              if [[ "${compiler_names[$i]}" == "clang" ]]; then
+                if [[ "${stdlib_names[$j]}" == "default" ]]; then
+                  link_option=""; compile_option="-stdlib=libc++"
+                fi
+              fi
+
+              dir="build_${compiler_names[$i]}_${stdlib_names[$j]}"
+              echo $dir
+              ${cxx_compilers[$i]} --version
+
+              cmake -S . -B $dir                                                                                     \
+                -DCMAKE_BUILD_TYPE=$build_type                                                                       \
+                -DIONE_CXX_STANDARD=20                                                                             \
+                -DIONE_TEST=SINGLE                                                                                 \
+                -DIONE_FLAGS="$flags"                                                                         \
+                -DCMAKE_CXX_COMPILER=${cxx_compilers[$i]}                                                            \
+                -DCMAKE_C_COMPILER=${c_compilers[$i]}                                                                \
+                -G"Ninja"                                                                                            \
+                -DIONE_LINK_OPTIONS="$link_option;$linker"                                                         \
+                -DIONE_COMPILE_OPTIONS="$compile_option"                                                           \
+                -DIONE_DEFINITIONS="IONE_CI_SLOWDOWN=$slowdown"
+            done
+          done
+
+      - name: Build
+        shell: bash
+        run: |
+          for dir in build*/; do
+            echo $dir
+            cmake --build $dir --config ${{ matrix.build_type }} --parallel
+            echo
+          done
+
+      - name: Test
+        shell: bash
+        run: |
+          flags=${{ matrix.flags }}
+          default="help=0 verbosity=0 halt_on_error=0"
+          # 'detect_invalid_pointer_pairs' Doesn't work well for most compilers so '=0'
+          export ASAN_OPTIONS="$default debug=1 detect_leaks=0 check_initialization_order=1 detect_stack_use_after_return=1 strict_init_order=1 strict_string_checks=1 detect_invalid_pointer_pairs=0"
+          export TSAN_OPTIONS="$default history_size=2 io_sync=0 detect_deadlocks=1 second_deadlock_stack=1"  
+          export UBSAN_OPTIONS="$default print_stacktrace=1"
+          if [[ "$flags" == "LSAN" ]]; then  # This is necessary for the schizo macOS ASAN, who for some reason reads LSAN_OPTIONS
+            export LSAN_OPTIONS="$default debug=1 detect_leaks=1"
+          fi
+          for dir in build*/; do
+            cd $dir
+            ctest --output-on-failure -C ${{ matrix.build_type }} -V
+            cd ..
+          done
