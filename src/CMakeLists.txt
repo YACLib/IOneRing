@@ -15,7 +15,7 @@ set(IONE_HEADERS
 set(IONE_SOURCES
         )
 
-add_subdirectory(sum)
+add_subdirectory(context)
 
 configure_file(config.hpp.in ${IONE_BINARY_DIR}/include/ione/config.hpp)
 
