@@ -52,16 +52,16 @@ html {
     --spacing-large: 16px;
 
     /* default box shadow used for raising an element above the normal content. Used in dropdowns, Searchresult, ... */
-    --box-shadow: 0 2px 8px 0 rgba(0,0,0,.075);
+    --box-shadow: 0 2px 8px 0 rgba(0, 0, 0, .075);
 
-    --odd-color: rgba(0,0,0,.028);
+    --odd-color: rgba(0, 0, 0, .028);
 
     /* font-families. will affect all text on the website
      * font-family: the normal font for text, headlines, menus
      * font-family-monospace: used for preformatted text in memtitle, code, fragments
      */
-    --font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    --font-family-monospace: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+    --font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    --font-family-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
 
     /* font sizes */
     --page-font-size: 15.6px;
@@ -110,7 +110,7 @@ html {
 
     --menu-focus-foreground: var(--page-background-color);
     --menu-focus-background: var(--primary-color);
-    --menu-selected-background: rgba(0,0,0,.05);
+    --menu-selected-background: rgba(0, 0, 0, .05);
 
 
     --header-background: var(--page-background-color);
@@ -183,11 +183,11 @@ html {
         --primary-dark-color: #86a9c4;
         --primary-light-color: #4779ac;
 
-        --box-shadow: 0 2px 8px 0 rgba(0,0,0,.35);
+        --box-shadow: 0 2px 8px 0 rgba(0, 0, 0, .35);
 
-        --odd-color: rgba(100,100,100,.06);
+        --odd-color: rgba(100, 100, 100, .06);
 
-        --menu-selected-background: rgba(0,0,0,.4);
+        --menu-selected-background: rgba(0, 0, 0, .4);
 
         --page-background-color: #1C1D1F;
         --page-foreground-color: #d2dbde;
@@ -198,7 +198,7 @@ html {
         --code-background: #2a2c2f;
 
         --tablehead-background: #2a2c2f;
-    
+
         --blockquote-background: #222325;
         --blockquote-foreground: #7e8c92;
 
@@ -244,11 +244,11 @@ html.dark-mode {
     --primary-dark-color: #86a9c4;
     --primary-light-color: #4779ac;
 
-    --box-shadow: 0 2px 8px 0 rgba(0,0,0,.30);
+    --box-shadow: 0 2px 8px 0 rgba(0, 0, 0, .30);
 
-    --odd-color: rgba(100,100,100,.06);
+    --odd-color: rgba(100, 100, 100, .06);
 
-    --menu-selected-background: rgba(0,0,0,.4);
+    --menu-selected-background: rgba(0, 0, 0, .4);
 
     --page-background-color: #1C1D1F;
     --page-foreground-color: #d2dbde;
@@ -464,11 +464,11 @@ a.anchor {
     font-size: var(--navigation-font-size);
 }
 
-.sm-dox>li>ul:after {
+.sm-dox > li > ul:after {
     border-bottom-color: var(--page-background-color) !important;
 }
 
-.sm-dox>li>ul:before {
+.sm-dox > li > ul:before {
     border-bottom-color: var(--separator-color) !important;
 }
 
@@ -841,7 +841,7 @@ div.contents, div.header .title, div.header .summary {
     max-width: var(--content-maxwidth);
 }
 
-div.contents, div.header .title  {
+div.contents, div.header .title {
     line-height: initial;
     margin: calc(var(--spacing-medium) + .2em) auto var(--spacing-medium) auto;
 }
@@ -919,23 +919,22 @@ html.dark-mode div.contents table iframe {
 h2.groupheader {
     border-bottom: 0px;
     color: var(--page-foreground-color);
-    box-shadow: 
-        100px 0 var(--page-background-color), 
-        -100px 0 var(--page-background-color),
-        100px 0.75px var(--separator-color),
-        -100px 0.75px var(--separator-color),
-        500px 0 var(--page-background-color), 
-        -500px 0 var(--page-background-color),
-        500px 0.75px var(--separator-color),
-        -500px 0.75px var(--separator-color),
-        1500px 0 var(--page-background-color),
-        -1500px 0 var(--page-background-color), 
-        1500px 0.75px var(--separator-color),
-        -1500px 0.75px var(--separator-color),
-        2000px 0 var(--page-background-color),
-        -2000px 0 var(--page-background-color),
-        2000px 0.75px var(--separator-color),
-        -2000px 0.75px var(--separator-color);
+    box-shadow: 100px 0 var(--page-background-color),
+    -100px 0 var(--page-background-color),
+    100px 0.75px var(--separator-color),
+    -100px 0.75px var(--separator-color),
+    500px 0 var(--page-background-color),
+    -500px 0 var(--page-background-color),
+    500px 0.75px var(--separator-color),
+    -500px 0.75px var(--separator-color),
+    1500px 0 var(--page-background-color),
+    -1500px 0 var(--page-background-color),
+    1500px 0.75px var(--separator-color),
+    -1500px 0.75px var(--separator-color),
+    2000px 0 var(--page-background-color),
+    -2000px 0 var(--page-background-color),
+    2000px 0.75px var(--separator-color),
+    -2000px 0.75px var(--separator-color);
 }
 
 blockquote {
@@ -973,6 +972,7 @@ blockquote::after {
 blockquote p {
     margin: var(--spacing-small) 0 var(--spacing-medium) 0;
 }
+
 .paramname {
     font-weight: 600;
     color: var(--primary-dark-color);
@@ -1450,9 +1450,9 @@ dl.reflist dd {
  */
 
 .contents table:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname) {
-     display: inline-block;
-     max-width: 100%;
- }
+    display: inline-block;
+    max-width: 100%;
+}
 
 .contents > table:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname):not(.classindex) {
     margin-left: calc(0px - var(--spacing-large));
@@ -1587,7 +1587,7 @@ table.memberdecls .memItemLeft {
     padding-right: 0;
 }
 
-table.memberdecls .memItemRight  {
+table.memberdecls .memItemRight {
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
     border-right: 1px solid var(--separator-color);
     padding-right: var(--spacing-medium);
@@ -1652,7 +1652,7 @@ table.memberdecls .inherit_header td {
         margin-top: calc(0px - var(--page-font-size));
     }
 
-    table.memberdecls .memItemRight, 
+    table.memberdecls .memItemRight,
     table.memberdecls .mdescRight,
     table.memberdecls .memTemplItemRight {
         border-top: 0;
@@ -1709,13 +1709,13 @@ hr {
 
 .contents hr {
     box-shadow: 100px 0 0 var(--separator-color),
-                -100px 0 0 var(--separator-color),
-                500px 0 0 var(--separator-color),
-                -500px 0 0 var(--separator-color),
-                1500px 0 0 var(--separator-color),
-                -1500px 0 0 var(--separator-color),
-                2000px 0 0 var(--separator-color),
-                -2000px 0 0 var(--separator-color);
+    -100px 0 0 var(--separator-color),
+    500px 0 0 var(--separator-color),
+    -500px 0 0 var(--separator-color),
+    1500px 0 0 var(--separator-color),
+    -1500px 0 0 var(--separator-color),
+    2000px 0 0 var(--separator-color),
+    -2000px 0 0 var(--separator-color);
 }
 
 .contents img, .contents .center, .contents center, .contents div.image object {
@@ -1946,7 +1946,7 @@ div.memproto::-webkit-scrollbar-thumb,
     background-color: transparent;
     border: var(--webkit-scrollbar-padding) solid transparent;
     border-radius: calc(var(--webkit-scrollbar-padding) + var(--webkit-scrollbar-padding));
-    background-clip: padding-box;  
+    background-clip: padding-box;
 }
 
 #nav-tree:hover::-webkit-scrollbar-thumb,
@@ -2037,11 +2037,11 @@ doxygen-awesome-dark-mode-toggle:active > svg {
 }
 
 doxygen-awesome-dark-mode-toggle:hover {
-    background-color: rgba(0,0,0,.03);
+    background-color: rgba(0, 0, 0, .03);
 }
 
 html.dark-mode doxygen-awesome-dark-mode-toggle:hover {
-    background-color: rgba(0,0,0,.18);
+    background-color: rgba(0, 0, 0, .18);
 }
 
 /*
@@ -2130,6 +2130,6 @@ a.anchorlink:hover {
     opacity: .45;
 }
 
-h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.anchorlink  {
+h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.anchorlink {
     display: inline-block;
 }
