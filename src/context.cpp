@@ -20,9 +20,10 @@ Context::~Context() {
   }
 }
 
-void Context::Init(unsigned entries, io_uring_params& params) {
+void Context::Init(unsigned entries, unsigned flags, unsigned sq_thread_cpu, unsigned sq_thread_idle) {
   assert(!_initialized);
   assert(entries != 0);
+  io_uring_params params{.flags = flags, .sq_thread_cpu = sq_thread_cpu, .sq_thread_idle = sq_thread_idle};
   io_uring_queue_init_params(entries, &_ring, &params);
   _initialized = true;
 }
@@ -44,7 +45,7 @@ unsigned Context::Poll() {
   unsigned counter = 0;
   // TODO(kononovk): think about io_uring_wait_cqe syscall
   io_uring_for_each_cqe(&_ring, head, cqe) {
-    auto* awaiter = static_cast<CompletionAwaiter*>(io_uring_cqe_get_data(cqe));
+    auto* awaiter = static_cast<detail::CompletionAwaiter*>(io_uring_cqe_get_data(cqe));
     awaiter->res = cqe->res;
     awaiter->handle.resume();
     ++counter;

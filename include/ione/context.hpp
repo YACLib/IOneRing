@@ -16,7 +16,7 @@ class Context {
 
   void Init(unsigned entries, unsigned flags);
 
-  void Init(unsigned entries, io_uring_params& params);
+  void Init(unsigned entries, unsigned flags, unsigned sq_thread_cpu, unsigned sq_thread_idle);
 
   io_uring& GetRing() {
     assert(_initialized);
