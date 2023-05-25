@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ione/context.hpp>
-#include <sys/mman.h>
 
 namespace ione {
 namespace detail {

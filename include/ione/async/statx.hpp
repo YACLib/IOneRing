@@ -31,20 +31,14 @@ class [[nodiscard]] StatxAwaiter : private ScopeAwaiter<Func> {
 
 }  // namespace detail
 
-YACLIB_INLINE auto Statx(Context& ctx, int dirfd, const char* path, int flags, unsigned mask) {
-  return detail::StatxAwaiter{ctx, dirfd, path, flags, mask, yaclib::Unit{}};
-}
-
 template <typename Func>
 YACLIB_INLINE auto Statx(Context& ctx, int dirfd, const char* path, int flags, unsigned mask, Func&& func) {
   return detail::StatxAwaiter{ctx, dirfd, path, flags, mask, std::forward<Func>(func)};
 }
 
-YACLIB_INLINE auto Statx(Context& ctx, std::filesystem::path path, int flags, unsigned mask) {
-  auto absolute_path = absolute(path);
-  return detail::StatxAwaiter{ctx, 0, absolute_path.c_str(), flags, mask, [p = std::move(absolute_path)]() mutable {
-                                p = {};
-                              }};
+YACLIB_INLINE auto Statx(Context& ctx, int dirfd, const char* path, int flags, unsigned mask) {
+  return Statx(ctx, dirfd, path, flags, mask, [] {
+  });
 }
 
 }  // namespace ione

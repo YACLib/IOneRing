@@ -7,11 +7,10 @@
 #include <ione/async/madvise.hpp>
 #include <ione/async/nop.hpp>
 #include <ione/async/openat.hpp>
+#include <ione/async/openat2.hpp>
 #include <ione/async/read.hpp>
 #include <ione/async/recv.hpp>
-#include <ione/async/recvmsg.hpp>
 #include <ione/async/send.hpp>
-#include <ione/async/sendmsg.hpp>
 #include <ione/async/splice.hpp>
 #include <ione/async/statx.hpp>
 #include <ione/async/write.hpp>
