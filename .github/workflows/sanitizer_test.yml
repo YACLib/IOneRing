@@ -10,7 +10,7 @@ on:
     paths: [ '**.cpp', '**.hpp*', '**.cmake', '**/CMakeLists.txt' ]
     types: [ assigned ]
   schedule:
-    - cron: '0 12 * * 1-5'
+    - cron: '0 12 * * 3'
 
 jobs:
   # TODO(kononovk) Add MEMSAN?

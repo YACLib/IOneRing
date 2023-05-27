@@ -18,8 +18,4 @@ list(APPEND IONE_INCLUDES
   ${IONE_INCLUDE_DIR}/async/timeout.hpp
   )
 
-list(APPEND IONE_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/all.cpp
-  )
-
 add_files()

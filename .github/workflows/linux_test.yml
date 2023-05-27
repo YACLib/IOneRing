@@ -9,7 +9,7 @@ on:
     branches: [ main ]
     paths: [ '**.cpp', '**.hpp*', '**.cmake', '**/CMakeLists.txt' ]
   schedule:
-    - cron: '0 12 * * 1-5'
+    - cron: '0 12 * * 3'
 
 jobs:
   main:

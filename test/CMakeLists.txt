@@ -24,6 +24,7 @@ set(TEST_UTIL_SOURCES
   )
 
 set(IONE_UNIT_SOURCES
+  unit/compilation
   unit/context
   unit/timers
   )

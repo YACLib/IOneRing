@@ -16,4 +16,11 @@
 #include <ione/async/timeout.hpp>
 #include <ione/async/write.hpp>
 
-namespace ione {}  // namespace ione
+#include <gtest/gtest.h>
+
+namespace {
+
+TEST(Compilation, JustWorks) {
+}
+
+}  // namespace
