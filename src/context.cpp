@@ -31,7 +31,10 @@ void Context::Init(unsigned entries, unsigned flags, unsigned sq_thread_cpu, uns
 void Context::Init(unsigned entries, unsigned flags) {
   assert(!_initialized);
   assert(entries != 0);
-  io_uring_queue_init(entries, &_ring, flags);
+  auto ret = io_uring_queue_init(entries, &_ring, flags);
+  if (ret < 0) {
+    throw std::runtime_error("queue_init error");
+  }
   _initialized = true;
 }
 

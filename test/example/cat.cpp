@@ -3,7 +3,6 @@
 #include <yaclib/coro/current_executor.hpp>
 #include <yaclib/coro/on.hpp>
 #include <yaclib/coro/task.hpp>
-#include <yaclib/exe/submit.hpp>
 #include <yaclib/runtime/fair_thread_pool.hpp>
 
 #include <ione/async/read.hpp>
@@ -13,7 +12,9 @@
 
 #include <sys/ioctl.h>
 
-uint64_t get_file_size(int fd) {
+namespace {
+
+uint64_t GetFileSize(int fd) {
   struct stat st;
 
   if (fstat(fd, &st) < 0) {
@@ -34,11 +35,13 @@ uint64_t get_file_size(int fd) {
   return -1;
 }
 
-void output_to_console(const char* buf, size_t len) {
+void OutputToConsole(const char* buf, size_t len) {
   while (len--) {
     fputc(*buf++, stdout);
   }
 }
+
+}  // namespace
 
 yaclib::Task<> ReadFile(ione::Context& ctx, const char* file_path) {
   int file_fd = open(file_path, O_RDONLY);
@@ -46,7 +49,7 @@ yaclib::Task<> ReadFile(ione::Context& ctx, const char* file_path) {
     throw std::runtime_error{"File open error"};
   }
 
-  auto file_size = get_file_size(file_fd);
+  auto file_size = GetFileSize(file_fd);
   if (file_size == -1) {
     throw std::runtime_error{"Incorrect file size"};
   }
@@ -57,10 +60,10 @@ yaclib::Task<> ReadFile(ione::Context& ctx, const char* file_path) {
   while (file_size != 0) {
     auto res = co_await Read(ctx, file_fd, buffer, std::min(file_size, kSize), offset);
     if (res < 0) {
-      throw std::runtime_error{"Govno in error_code"};
+      throw std::runtime_error{"Error during reading"};
     }
     // fprintf(stderr, "file_path %s, res: %d\n", file_path, res);
-    output_to_console(buffer, res);
+    OutputToConsole(buffer, res);
     co_await On(current);
     file_size -= res;
     offset += res;
@@ -70,7 +73,7 @@ yaclib::Task<> ReadFile(ione::Context& ctx, const char* file_path) {
 
 int main(int file_num, char* argv[]) {
   if (file_num < 2) {
-    fprintf(stderr, "Usage: %s [file name] <[file name] ...>\n", argv[0]);
+    std::fprintf(stderr, "Usage: %s [file name] <[file name] ...>\n", argv[0]);
     return 1;
   }
 
