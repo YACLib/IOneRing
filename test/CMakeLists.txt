@@ -69,6 +69,3 @@ else ()
 endif ()
 
 unset(IONE_TEST_SOURCES)
-
-# TODO: add example flag
-add_subdirectory(example)

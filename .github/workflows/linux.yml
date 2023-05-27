@@ -12,13 +12,6 @@ on:
     - cron: '0 12 * * 1-5'
 
 jobs:
-  # TODO(kononovk) Add clang-5.0, clang-6.0, clang-7
-  #             Fucking cppreference liars, clang doesn't support simple variant usage, before clang-8!
-  #             We can only support this when we remove the variant from the Result
-  # TODO(kononovk) Add clang-15 when it release
-  # TODO(kononovk) Add other compilers, like Intel C++?
-  # TODO(kononovk) libstdc++-7-dev, libc++ old version
-
   main:
     runs-on: 'ubuntu-${{ matrix.os }}'
     strategy:

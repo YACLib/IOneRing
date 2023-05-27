@@ -50,3 +50,7 @@ if (IONE_TEST)
   message("IONE_COMPILE_OPTIONS: ${IONE_COMPILE_OPTIONS}")
   message("IONE_DEFINITIONS    : ${IONE_DEFINITIONS}")
 endif ()
+
+if (IONE_EXAMPLE)
+  add_subdirectory(example)
+endif ()
