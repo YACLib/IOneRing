@@ -23,7 +23,7 @@ set(TEST_UTIL_SOURCES
   )
 
 set(IONE_UNIT_SOURCES
-  unit/context/context
+  unit/context
   )
 
 set(IONE_TEST_SOURCES ${IONE_UNIT_SOURCES})
