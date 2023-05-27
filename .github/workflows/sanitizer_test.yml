@@ -10,7 +10,7 @@ on:
     paths: [ '**.cpp', '**.hpp*', '**.cmake', '**/CMakeLists.txt' ]
     types: [ assigned ]
   schedule:
-    - cron: '0 12 * * 1-5'
+    - cron: '0 12 * * 3'
 
 jobs:
   # TODO(kononovk) Add MEMSAN?
@@ -59,7 +59,7 @@ jobs:
         run: |
           flags=${{ matrix.flags }}
           build_type=${{ matrix.build_type }}
-          compiler_names=(clang gnu apple_clang)
+          compiler_names=(clang gnu)
           stdlib_names=(libcxx libstdcxx default)
           linker=""
           cxx_compilers=(clang++-14 g++)
@@ -75,7 +75,7 @@ jobs:
           slowdown=1
           linker="-fuse-ld=lld-14"
           
-
+          
           for (( i=0; i<${#cxx_compilers[*]}; i+=1 )); do
             for (( j=0; j<${#link_options[*]}; j+=1 )); do
               link_option=${link_options[$j]}; compile_option=${compile_options[$j]}
