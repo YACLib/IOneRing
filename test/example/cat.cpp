@@ -1,9 +1,14 @@
 #include <yaclib/algo/wait_group.hpp>
-#include <yaclib/async/future.hpp>
-#include <yaclib/coro/future.hpp>
+#include <yaclib/coro/await.hpp>
+#include <yaclib/coro/current_executor.hpp>
+#include <yaclib/coro/on.hpp>
+#include <yaclib/coro/task.hpp>
+#include <yaclib/exe/submit.hpp>
+#include <yaclib/runtime/fair_thread_pool.hpp>
 
 #include <ione/async/read.hpp>
 
+#include <algorithm>
 #include <thread>
 
 #include <sys/ioctl.h>
@@ -29,13 +34,13 @@ uint64_t get_file_size(int fd) {
   return -1;
 }
 
-void output_to_console(char* buf, int len) {
+void output_to_console(const char* buf, size_t len) {
   while (len--) {
     fputc(*buf++, stdout);
   }
 }
 
-yaclib::Future<> ReadFile(ione::Context& ctx, const char* file_path) {
+yaclib::Task<> ReadFile(ione::Context& ctx, const char* file_path) {
   int file_fd = open(file_path, O_RDONLY);
   if (file_fd < 0) {
     throw std::runtime_error{"File open error"};
@@ -45,11 +50,21 @@ yaclib::Future<> ReadFile(ione::Context& ctx, const char* file_path) {
   if (file_size == -1) {
     throw std::runtime_error{"Incorrect file size"};
   }
-  auto read_result = co_await ione::Read{ctx, file_fd, 0, file_size};
-  if (read_result.error_code < 0) {
-    throw std::runtime_error{"Govno in error_code"};
+  constexpr size_t kSize = 100;
+  char buffer[kSize];
+  auto& current = co_await yaclib::CurrentExecutor();
+  size_t offset = 0;
+  while (file_size != 0) {
+    auto res = co_await Read(ctx, file_fd, buffer, std::min(file_size, kSize), offset);
+    if (res < 0) {
+      throw std::runtime_error{"Govno in error_code"};
+    }
+    // fprintf(stderr, "file_path %s, res: %d\n", file_path, res);
+    output_to_console(buffer, res);
+    co_await On(current);
+    file_size -= res;
+    offset += res;
   }
-  output_to_console(read_result.buffer.data(), read_result.buffer.size());
   co_return{};
 }
 
@@ -60,26 +75,31 @@ int main(int file_num, char* argv[]) {
   }
 
   ione::Context ctx;
-  ctx.Init(1, 0);
+  ctx.Init(10, 0);
 
-  yaclib::WaitGroup wg{1};
-  std::thread reader{[&] {
+  yaclib::FairThreadPool tp1{1};
+  auto coro = [&]() -> yaclib::Task<> {
     for (int i = 1; i < file_num; ++i) {
-      wg.Consume(ReadFile(ctx, argv[i]));
+      co_await ReadFile(ctx, argv[i]);
     }
-    ctx.Submit();
+    co_return{};
+  };
+  auto f = coro().ToFuture(tp1);
+
+  std::atomic_bool run{true};
+  std::thread poller{[&] {
+    while (run.load()) {
+      ctx.Run();
+    }
   }};
 
-  std::thread poller{[&]() mutable {
-    for (int i = 1; i < file_num; ++i) {
-      ctx.Poll();
-    }
-  }};
+  Wait(f);
 
-  reader.join();
+  run.store(false);
   poller.join();
-  wg.Done();
-  wg.Wait();
+
+  tp1.HardStop();
+  tp1.Wait();
 
   return 0;
 }

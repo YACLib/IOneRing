@@ -8,7 +8,7 @@ namespace ione {
 namespace detail {
 
 template <typename Func>
-class [[nodiscard]] WriteAwaiter : private ScopeAwaiter<Func> {
+class [[nodiscard]] WriteAwaiter : public ScopeAwaiter<Func> {
  public:
   using Result = int;
 

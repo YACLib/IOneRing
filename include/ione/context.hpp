@@ -25,6 +25,8 @@ class Context {
 
   void Destroy();
 
+  void Run();
+
   int Submit();
 
   unsigned Poll();

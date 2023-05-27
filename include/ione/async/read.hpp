@@ -7,7 +7,7 @@
 namespace ione {
 namespace detail {
 
-class [[nodiscard]] ReadAwaiter : private CompletionAwaiter {
+class [[nodiscard]] ReadAwaiter : public CompletionAwaiter {
  public:
   using Result = int;
 
@@ -22,7 +22,7 @@ class [[nodiscard]] ReadAwaiter : private CompletionAwaiter {
   }
 };
 
-class [[nodiscard]] ReadToBufferAwaiter : private CompletionAwaiter {
+class [[nodiscard]] ReadToBufferAwaiter : public CompletionAwaiter {
  public:
   struct Result {
     std::vector<char> buffer;
@@ -45,7 +45,6 @@ class [[nodiscard]] ReadToBufferAwaiter : private CompletionAwaiter {
 
 }  // namespace detail
 
-template <typename Func>
 YACLIB_INLINE auto Read(Context& ctx, int fd, void* data, size_t size, uint64_t offset) {
   return detail::ReadAwaiter{ctx, fd, data, size, offset};
 }

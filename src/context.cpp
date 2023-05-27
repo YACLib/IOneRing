@@ -35,6 +35,11 @@ void Context::Init(unsigned entries, unsigned flags) {
   _initialized = true;
 }
 
+void Context::Run() {
+  io_uring_submit_and_wait(&_ring, 0);
+  Poll();
+}
+
 int Context::Submit() {
   return io_uring_submit(&_ring);
 }

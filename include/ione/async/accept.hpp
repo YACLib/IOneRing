@@ -5,7 +5,7 @@
 namespace ione {
 namespace detail {
 
-class [[nodiscard]] AcceptAwaiter : private CompletionAwaiter {
+class [[nodiscard]] AcceptAwaiter : public CompletionAwaiter {
  public:
   struct Result {
     sockaddr addr;
@@ -28,7 +28,7 @@ class [[nodiscard]] AcceptAwaiter : private CompletionAwaiter {
   socklen_t _addrlen;
 };
 
-class [[nodiscard]] DefaultAcceptAwaiter : private CompletionAwaiter {
+class [[nodiscard]] DefaultAcceptAwaiter : public CompletionAwaiter {
  public:
   using Result = int;
 

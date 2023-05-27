@@ -6,10 +6,10 @@ namespace ione {
 namespace detail {
 
 template <typename Func>
-class [[nodiscard]] StatxAwaiter : private ScopeAwaiter<Func> {
+class [[nodiscard]] StatxAwaiter : public ScopeAwaiter<Func> {
  public:
   struct Result {
-    statx statx{};
+    struct statx statx{};
     int error_code;
   };
 
@@ -26,7 +26,7 @@ class [[nodiscard]] StatxAwaiter : private ScopeAwaiter<Func> {
   }
 
  private:
-  statx _statx{};
+  struct statx _statx{};
 };
 
 }  // namespace detail

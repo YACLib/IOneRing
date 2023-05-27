@@ -6,7 +6,7 @@ namespace ione {
 namespace detail {
 
 template <typename Func>
-class [[nodiscard]] OpenAt2Awaiter : private ScopeAwaiter<Func> {
+class [[nodiscard]] OpenAt2Awaiter : public ScopeAwaiter<Func> {
  public:
   using Result = int;
 

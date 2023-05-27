@@ -5,7 +5,7 @@
 namespace ione {
 namespace detail {
 
-class [[nodiscard]] SpliceAwaiter : private CompletionAwaiter {
+class [[nodiscard]] SpliceAwaiter : public CompletionAwaiter {
  public:
   using Result = int;
 

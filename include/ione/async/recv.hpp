@@ -7,7 +7,7 @@
 namespace ione {
 namespace detail {
 
-class [[nodiscard]] RecvAwaiter : private CompletionAwaiter {
+class [[nodiscard]] RecvAwaiter : public CompletionAwaiter {
  public:
   using Result = int;
 
@@ -22,7 +22,7 @@ class [[nodiscard]] RecvAwaiter : private CompletionAwaiter {
   }
 };
 
-class [[nodiscard]] RecvToBufferAwaiter : private CompletionAwaiter {
+class [[nodiscard]] RecvToBufferAwaiter : public CompletionAwaiter {
  public:
   struct Result {
     std::vector<char> buffer;

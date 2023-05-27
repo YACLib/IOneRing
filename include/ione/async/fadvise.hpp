@@ -7,7 +7,7 @@
 namespace ione {
 namespace detail {
 
-class [[nodiscard]] FadviseAwaiter : private CompletionAwaiter {
+class [[nodiscard]] FadviseAwaiter : public CompletionAwaiter {
  public:
   using Result = int;
 
