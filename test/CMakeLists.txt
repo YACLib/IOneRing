@@ -18,6 +18,7 @@ if (NOT GTEST_FOUND)
 endif ()
 
 set(TEST_UTIL_INCLUDES
+  util/time.hpp
   )
 set(TEST_UTIL_SOURCES
   )
