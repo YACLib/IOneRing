@@ -1,15 +1,15 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
+#include <fcntl.h>
 #include <liburing.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-#define QD  2
+#define QD 2
 #define BS (16 * 1024)
 
 static int infd, outfd;
@@ -21,7 +21,7 @@ struct io_data {
   struct iovec iov;
 };
 
-static int setup_context(unsigned entries, struct io_uring *ring) {
+static int setup_context(unsigned entries, struct io_uring* ring) {
   int ret;
 
   ret = io_uring_queue_init(entries, ring, 0);
@@ -33,12 +33,12 @@ static int setup_context(unsigned entries, struct io_uring *ring) {
   return 0;
 }
 
-static int get_file_size(int fd, off_t *size) {
+static int get_file_size(int fd, off_t* size) {
   struct stat st;
 
-  if (fstat(fd, &st) < 0 )
+  if (fstat(fd, &st) < 0)
     return -1;
-  if(S_ISREG(st.st_mode)) {
+  if (S_ISREG(st.st_mode)) {
     *size = st.st_size;
     return 0;
   } else if (S_ISBLK(st.st_mode)) {
@@ -53,8 +53,8 @@ static int get_file_size(int fd, off_t *size) {
   return -1;
 }
 
-static void queue_prepped(struct io_uring *ring, struct io_data *data) {
-  struct io_uring_sqe *sqe;
+static void queue_prepped(struct io_uring* ring, struct io_data* data) {
+  struct io_uring_sqe* sqe;
 
   sqe = io_uring_get_sqe(ring);
   assert(sqe);
@@ -67,9 +67,9 @@ static void queue_prepped(struct io_uring *ring, struct io_data *data) {
   io_uring_sqe_set_data(sqe, data);
 }
 
-static int queue_read(struct io_uring *ring, off_t size, off_t offset) {
-  struct io_uring_sqe *sqe;
-  struct io_data *data;
+static int queue_read(struct io_uring* ring, off_t size, off_t offset) {
+  struct io_uring_sqe* sqe;
+  struct io_data* data;
 
   data = malloc(size + sizeof(*data));
   if (!data)
@@ -93,7 +93,7 @@ static int queue_read(struct io_uring *ring, off_t size, off_t offset) {
   return 0;
 }
 
-static void queue_write(struct io_uring *ring, struct io_data *data) {
+static void queue_write(struct io_uring* ring, struct io_data* data) {
   data->read = 0;
   data->offset = data->first_offset;
 
@@ -104,9 +104,9 @@ static void queue_write(struct io_uring *ring, struct io_data *data) {
   io_uring_submit(ring);
 }
 
-int copy_file(struct io_uring *ring, off_t insize) {
+int copy_file(struct io_uring* ring, off_t insize) {
   unsigned long reads, writes;
-  struct io_uring_cqe *cqe;
+  struct io_uring_cqe* cqe;
   off_t write_left, offset;
   int ret;
 
@@ -147,7 +147,7 @@ int copy_file(struct io_uring *ring, off_t insize) {
     /* Queue is full at this point. Let's find at least one completion */
     got_comp = 0;
     while (write_left) {
-      struct io_data *data;
+      struct io_data* data;
 
       if (!got_comp) {
         ret = io_uring_wait_cqe(ring, &cqe);
@@ -160,8 +160,7 @@ int copy_file(struct io_uring *ring, off_t insize) {
         }
       }
       if (ret < 0) {
-        fprintf(stderr, "io_uring_peek_cqe: %s\n",
-                strerror(-ret));
+        fprintf(stderr, "io_uring_peek_cqe: %s\n", strerror(-ret));
         return 1;
       }
       if (!cqe)
@@ -174,8 +173,7 @@ int copy_file(struct io_uring *ring, off_t insize) {
           io_uring_cqe_seen(ring, cqe);
           continue;
         }
-        fprintf(stderr, "cqe failed: %s\n",
-                strerror(-cqe->res));
+        fprintf(stderr, "cqe failed: %s\n", strerror(-cqe->res));
         return 1;
       } else if (cqe->res != data->iov.iov_len) {
         /* short read/write; adjust and requeue */
@@ -187,9 +185,9 @@ int copy_file(struct io_uring *ring, off_t insize) {
       }
 
       /*
-             * All done. If write, nothing else to do. If read,
-             * queue up corresponding write.
-             * */
+       * All done. If write, nothing else to do. If read,
+       * queue up corresponding write.
+       * */
 
       if (data->read) {
         queue_write(ring, data);
@@ -207,7 +205,7 @@ int copy_file(struct io_uring *ring, off_t insize) {
   return 0;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   struct io_uring ring;
   off_t insize;
   int ret;

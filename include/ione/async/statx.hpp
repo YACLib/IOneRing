@@ -9,7 +9,7 @@ template <typename Func>
 class [[nodiscard]] StatxAwaiter : public ScopeAwaiter<Func> {
  public:
   struct Result {
-    struct statx statx{};
+    struct statx statx {};
     int error_code;
   };
 
@@ -26,7 +26,7 @@ class [[nodiscard]] StatxAwaiter : public ScopeAwaiter<Func> {
   }
 
  private:
-  struct statx _statx{};
+  struct statx _statx {};
 };
 
 }  // namespace detail

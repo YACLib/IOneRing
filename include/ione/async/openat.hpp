@@ -31,7 +31,8 @@ YACLIB_INLINE auto OpenAt(Context& ctx, int dirfd, const char* path, int flags, 
 }
 
 YACLIB_INLINE auto OpenAt(Context& ctx, int dirfd, const char* path, int flags, mode_t mode) {
-  return OpenAt(ctx, dirfd, path, flags, mode, []{});
+  return OpenAt(ctx, dirfd, path, flags, mode, [] {
+  });
 }
 
 }  // namespace ione
