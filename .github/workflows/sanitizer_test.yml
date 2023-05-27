@@ -59,7 +59,7 @@ jobs:
         run: |
           flags=${{ matrix.flags }}
           build_type=${{ matrix.build_type }}
-          compiler_names=(clang gnu apple_clang)
+          compiler_names=(clang gnu)
           stdlib_names=(libcxx libstdcxx default)
           linker=""
           cxx_compilers=(clang++-14 g++)
