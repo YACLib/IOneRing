@@ -68,10 +68,10 @@ static void queue_prepped(struct io_uring* ring, struct io_data* data) {
 }
 
 static int queue_read(struct io_uring* ring, off_t size, off_t offset) {
-  struct io_uring_sqe* sqe;
-  struct io_data* data;
+  io_uring_sqe* sqe;
+  io_data* data;
 
-  data = malloc(size + sizeof(*data));
+  data = static_cast<io_data*>(malloc(size + sizeof(*data)));
   if (!data)
     return 1;
 
@@ -166,7 +166,7 @@ int copy_file(struct io_uring* ring, off_t insize) {
       if (!cqe)
         break;
 
-      data = io_uring_cqe_get_data(cqe);
+      data = static_cast<io_data*>(io_uring_cqe_get_data(cqe));
       if (cqe->res < 0) {
         if (cqe->res == -EAGAIN) {
           queue_prepped(ring, data);
@@ -177,7 +177,9 @@ int copy_file(struct io_uring* ring, off_t insize) {
         return 1;
       } else if (cqe->res != data->iov.iov_len) {
         /* short read/write; adjust and requeue */
-        data->iov.iov_base += cqe->res;
+        char* data_iov_base = static_cast<char*>(data->iov.iov_base);
+        data_iov_base += cqe->res;
+        data->iov.iov_base = data_iov_base;
         data->iov.iov_len -= cqe->res;
         queue_prepped(ring, data);
         io_uring_cqe_seen(ring, cqe);
