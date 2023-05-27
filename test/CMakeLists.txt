@@ -24,6 +24,7 @@ set(TEST_UTIL_SOURCES
 
 set(IONE_UNIT_SOURCES
   unit/context
+  unit/timers
   )
 
 set(IONE_TEST_SOURCES ${IONE_UNIT_SOURCES})

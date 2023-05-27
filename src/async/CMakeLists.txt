@@ -15,6 +15,7 @@ list(APPEND IONE_INCLUDES
   ${IONE_INCLUDE_DIR}/async/splice.hpp
   ${IONE_INCLUDE_DIR}/async/statx.hpp
   ${IONE_INCLUDE_DIR}/async/write.hpp
+  ${IONE_INCLUDE_DIR}/async/timeout.hpp
   )
 
 list(APPEND IONE_SOURCES

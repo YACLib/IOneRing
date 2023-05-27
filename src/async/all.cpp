@@ -13,6 +13,7 @@
 #include <ione/async/send.hpp>
 #include <ione/async/splice.hpp>
 #include <ione/async/statx.hpp>
+#include <ione/async/timeout.hpp>
 #include <ione/async/write.hpp>
 
 namespace ione {}  // namespace ione
