@@ -1,4 +1,4 @@
-name: Example
+name: Linux
 
 on:
   workflow_dispatch:
